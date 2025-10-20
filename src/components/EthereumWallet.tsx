@@ -1,13 +1,15 @@
 import { generateMnemonic, mnemonicToSeedSync } from "bip39";
 import React, { useState } from "react"
-import { HDNodeWallet } from "ethers";
+import { ethers, HDNodeWallet } from "ethers";
 import { Wallet } from "ethers";
+import axios from "axios";
 
 
 interface WalletType {
     privateKey: string;
     publicKey: string;
     showPrivateKey: boolean;
+    balance: number | string;
 }
 
 export const EthereumWallet = () => {
@@ -25,7 +27,35 @@ export const EthereumWallet = () => {
 
     const [wallets, setWallets] = useState<WalletType[]>([]);
 
-    const addWallet = () => {
+    const getBalance = async (publicKey: string) => {
+        try {
+            // "https://eth.drpc.org"
+            const res = await axios.post(import.meta.env.VITE_ETH_RPC_URL, {
+                jsonrpc: "2.0",
+                id: 1,
+                method: "eth_getBalance",
+                params: [publicKey, "latest"]
+            });
+
+            console.log("balance: ", res.data.result);
+
+            const weiHex: string = res.data.result;
+
+            const weiBigInt: bigint = BigInt(weiHex);
+            const ethBalanceString: string = ethers.formatEther(weiBigInt);
+
+            console.log("Balance in Wei (Hex): ", weiHex);
+            console.log("Balance in ETH (String): ", ethBalanceString);
+
+            return ethBalanceString;
+
+        } catch (error) {
+            console.log(error);
+            return -1;
+        }
+    }
+
+    const addWallet = async () => {
         const seed = mnemonicToSeedSync(mnemonic);
         const walletNo = wallets.length;
 
@@ -33,15 +63,16 @@ export const EthereumWallet = () => {
 
         const hdNode = HDNodeWallet.fromSeed(seed);
         const child = hdNode.derivePath(path);
-        
+
         const privateKey = child.privateKey;
-        
+
         const wallet = new Wallet(privateKey);
 
         const newWallet = {
             privateKey: privateKey,
             publicKey: wallet.address,
-            showPrivateKey: false
+            showPrivateKey: false,
+            balance: await getBalance(wallet.address)
         }
 
         setWallets([...wallets, newWallet]);
@@ -80,12 +111,19 @@ export const EthereumWallet = () => {
                 {wallets.map((wallet, index) => {
                     return <div key={index}
                         className="border my-2 w-7xl py-2 px-4">
-                        <h2>Public Key: {wallet.publicKey}</h2>
+                        <h2 className="flex w-full items-center justify-between my-2">
+                            <div>Public Key: {wallet.publicKey}</div>
+
+
+                            <div className="border px-2 rounded-md bg-gray-800 w-20 text-center">
+                                {wallet.balance == -1 ? "ERROR" : wallet.balance + " ETH"} 
+                            </div>
+                        </h2>
 
                         <h2 className="flex w-full items-center justify-between my-2">
                             <div>Private Key: {visibility[wallet.publicKey] ? wallet.privateKey : "*".repeat(88)}</div>
-                            
-                            
+
+
                             <button onClick={() => toggleVisibility(wallet.publicKey)}
                                 className="border px-2 rounded-md bg-gray-600">
                                 View 👁️
