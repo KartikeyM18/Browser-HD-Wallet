@@ -1,9 +1,7 @@
-import { Keypair } from "@solana/web3.js";
 import { generateMnemonic, mnemonicToSeedSync } from "bip39";
-import { derivePath } from "ed25519-hd-key";
 import React, { useState } from "react"
-import nacl from "tweetnacl";
-import bs58 from 'bs58';
+import { HDNodeWallet } from "ethers";
+import { Wallet } from "ethers";
 
 
 interface WalletType {
@@ -12,7 +10,7 @@ interface WalletType {
     showPrivateKey: boolean;
 }
 
-export const SolanaWallet = () => {
+export const EthereumWallet = () => {
 
     const [mnemonic, setMnemonic] = useState("");
 
@@ -31,19 +29,18 @@ export const SolanaWallet = () => {
         const seed = mnemonicToSeedSync(mnemonic);
         const walletNo = wallets.length;
 
-        const path = `m/44'/501'/${walletNo}'/0'`;
+        const path = `m/44'/60'/${walletNo}'/0'`;
 
-        const seedHex = seed.toString('hex');
-
-        const derivedSeed = derivePath(path, seedHex);
-
-        const keypair = nacl.sign.keyPair.fromSeed(derivedSeed.key);
-
-        const solanaKeypair = Keypair.fromSecretKey(keypair.secretKey);
+        const hdNode = HDNodeWallet.fromSeed(seed);
+        const child = hdNode.derivePath(path);
+        
+        const privateKey = child.privateKey;
+        
+        const wallet = new Wallet(privateKey);
 
         const newWallet = {
-            privateKey: bs58.encode(solanaKeypair.secretKey),
-            publicKey: solanaKeypair.publicKey.toBase58(),
+            privateKey: privateKey,
+            publicKey: wallet.address,
             showPrivateKey: false
         }
 
@@ -61,7 +58,7 @@ export const SolanaWallet = () => {
 
     return (
         <div className="p-2 px-4">
-            SolanaWallet
+            Ethereum Wallet
 
             <div>
                 <input type="text" placeholder="Enter your secret phrase" value={mnemonic} onChange={inputHandler}
