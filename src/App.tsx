@@ -4,6 +4,7 @@ import { EthereumWallet } from './components/EthereumWallet';
 import { HomePage } from './components/HomePage';
 import { Navbar } from './components/Navbar';
 import { SolanaWallet } from './components/SolanaWallet';
+import {  WalletPage } from './components/WalletPage';
 function App() {
 
     return (
@@ -13,9 +14,15 @@ function App() {
 
         //     <CheckBalance />
         // </div>
+
+        // <div className='h-screen font-[Poppins]'>
+        //     <Navbar />
+        //     <HomePage />
+        // </div>
+
         <div className='h-screen font-[Poppins]'>
             <Navbar />
-            <HomePage />
+            <WalletPage />
         </div>
     )
 }
