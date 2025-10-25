@@ -87,7 +87,7 @@ export const CheckBalancePage = () => {
         <div className="min-h-[calc(100vh-7rem)] h-auto pt-25 pb-21 bg-black text-white flex items-center justify-center  ">
             <div className="flex flex-col items-center gap-10">
                 <div className="text-7xl">
-                    Solana <span className="bg-gradient-to-r from-purple-300 to-purple-900 bg-clip-text text-transparent">Balance</span>
+                    {selectedWallet[0].toUpperCase() + selectedWallet.substring(1)} <span className="bg-gradient-to-r from-purple-300 to-purple-900 bg-clip-text text-transparent">Balance</span>
                 </div>
 
                 <div>
