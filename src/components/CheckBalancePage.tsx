@@ -1,14 +1,14 @@
 import axios from "axios";
 import { ethers } from "ethers";
-import React, { useState } from "react"
+import { useState } from "react";
 
-
-
-export const CheckBalance = () => {
+export const CheckBalancePage = () => {
 
     const [address, setAddress] = useState("");
 
     const [selectedWallet, setSelectedWallet] = useState("solana");
+
+    const [balance, setBalance] = useState<string | number>(-2);
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 
@@ -18,12 +18,9 @@ export const CheckBalance = () => {
         if (e.target.value.startsWith("0x")) setSelectedWallet("ethereum");
         else setSelectedWallet("solana");
     }
-    const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setBalance(-2);
-        setSelectedWallet(e.target.value);
-    }
 
     const getBalance = async () => {
+        console.log(selectedWallet);
         if (selectedWallet == "solana") {
 
             const LAMPORTS_PER_SOL = 1e9;
@@ -37,6 +34,7 @@ export const CheckBalance = () => {
                 });
 
                 const lamports: number = res.data.result.value;
+                console.log(lamports);
                 const sols: number = lamports / LAMPORTS_PER_SOL;
 
                 console.log("balance: ", res.data.result.value);
@@ -77,8 +75,6 @@ export const CheckBalance = () => {
         }
     }
 
-    const [balance, setBalance] = useState<string | number>(-2);
-
     const handleClick = async () => {
         // const b = await getBalance();
         // setBalance(b || -1);
@@ -86,25 +82,33 @@ export const CheckBalance = () => {
         getBalance().then((b) => setBalance(b!));
     }
 
-    return <div className="p-2 px-4 border rounded-xl w-5xl my-6" >
-        <div>
-            Check Balance
+
+    return (
+        <div className="min-h-[calc(100vh-7rem)] h-auto pt-25 pb-21 bg-black text-white flex items-center justify-center  ">
+            <div className="flex flex-col items-center gap-10">
+                <div className="text-7xl">
+                    Solana <span className="bg-gradient-to-r from-purple-300 to-purple-900 bg-clip-text text-transparent">Balance</span>
+                </div>
+
+                <div>
+                    <input type="text" placeholder="Enter your Public Key" className="w-5xl py-4 px-10 rounded-full text-xl bg-gradient-to-r from-purple-950 " onChange={handleInput} value={address} />
+
+                </div>
+
+                <div>
+                    <button className="bg-purple-950 rounded-2xl p-4 px-24 hover:bg-purple-800 transition-all duration-500 cursor-pointer text-2xl" onClick={handleClick}>
+                        Check Balance
+                    </button>
+
+                </div>
+
+                <div className="text-3xl pt-10 border-b-2 border-b-gray-500">
+                    
+                    {balance == -2 ? <></> :
+                        (balance == -1 ? "ERROR" : <> {balance} <span className="font-semibold text-purple-300"> { (selectedWallet.substring(0, 3).toUpperCase())}</span> </>)
+                    }
+                </div>
+            </div>
         </div>
-        <input type="text" placeholder="Enter Wallet Address (Public Key)" onChange={handleInput} value={address}
-            onKeyDown={(e) => { (e.key == "Enter") && handleClick() }}
-            className="w-2xl border px-2 rounded-md my-2 mr-2" />
-
-        <select value={selectedWallet} onChange={handleSelect} className="border rounded-md mr-2 px-2 bg-blue-950">
-            <option value="solana">Solana</option>
-            <option value="ethereum">Ethereum</option>
-        </select>
-
-        <button onClick={handleClick} className="border  px-2 rounded-md bg-green-700 ">Check Balance</button>
-
-        <div >
-            {balance == -2 ? <></> :
-                (balance == -1 ? "ERROR" : "Balance: " + balance + " " + (selectedWallet.substring(0, 3).toUpperCase()))
-            }
-        </div>
-    </div>
+    )
 }

@@ -1,9 +1,9 @@
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { useState } from "react"
 
-export const SecretPhraseBox = () => {
+export const SecretPhraseBox = ({phrase}: {phrase: string}) => {
 
-    const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const arr = phrase.split(" ");
     const [isPhraseOpen, setIsPhraseOpen] = useState(false);
 
     const handleOpen = () => {
@@ -25,8 +25,8 @@ export const SecretPhraseBox = () => {
 
             {
                 <div className={` grid grid-rows-3 grid-cols-4 gap-2 bg-gradient-to-r from-purple-950 transition-all duration-200 overflow-hidden ease-linear rounded-b-4xl ${isPhraseOpen ? 'max-h-96  p-5' : 'max-h-0'}`}>
-                    {arr.map((ele) => {
-                        return <div className="px-3 py-2 bg-black rounded-md hover:bg-gray-900 transition-all duration-75 cursor-pointer">
+                    {arr.map((ele, index) => {
+                        return <div key={index} className="px-3 py-2 bg-black rounded-md hover:bg-gray-900 transition-all duration-75 cursor-pointer">
                             {ele}
                         </div>
                     })}
